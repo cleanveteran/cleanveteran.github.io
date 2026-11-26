@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>클린베테랑 | CI 소개</title>
+<style>
+:root{--navy:#0D285C;--teal:#1F97B6;--cyan:#36BDE0;--mint:#38C7AC;--white:#fff;--ink:#122342;--muted:#53637a;--line:#dce5ef;--paper:#f4f8fc;--wrap:1180px;--board:1177px;--step:21px;--btn-width:218px;--btn-height:54px;}
+*{box-sizing:border-box} body{margin:0;background:white;font-family:Pretendard,"Malgun Gothic","Apple SD Gothic Neo",sans-serif;color:var(--ink);word-break:keep-all} a{color:var(--navy)} button,a,summary{-webkit-tap-highlight-color:transparent} :focus-visible{outline:3px solid #167991;outline-offset:3px}
+.top{border-bottom:1px solid var(--line)} .top-inner,.ci,.footer-inner{width:min(var(--wrap),calc(100% - 48px));margin-inline:auto} .top-inner{min-height:62px;display:flex;align-items:center;justify-content:space-between;gap:12px} .word{font-size:15px;font-weight:850;letter-spacing:-.05em}.word i{display:inline-block;width:9px;height:9px;margin-right:10px;transform:rotate(45deg);border-radius:2px;background:#239981}.meta,.kicker{color:var(--muted);font:700 10px/1.4 system-ui;letter-spacing:.17em;text-transform:uppercase}
+.ci{padding-block:56px 54px}.ci-title{text-align:center;height:74px;margin-bottom:46px}.ci-title h1{font-size:clamp(31px,5vw,44px);line-height:1.1;letter-spacing:-.075em;margin:8px 0 0}.ci-title .kicker{color:#19647b}
+/* 데스크톱: .ci-title 기준 좌표판 y=120 / 버튼 y=436 / 하단 y=544. 좁은 화면에서는 일반 문서 흐름으로 재배치. */
+.board{--surface:#f7fafc;--grid:rgba(28,69,107,.105);--board-ink:#425673;--guide:rgba(22,111,137,.44);position:relative;margin:0 auto;width:100%;max-width:var(--board);aspect-ratio:1177/274;min-height:194px;display:grid;place-items:center;isolation:isolate;overflow:hidden;background-color:var(--surface);background-image:linear-gradient(to right,var(--grid) 1px,transparent 1px),linear-gradient(to bottom,var(--grid) 1px,transparent 1px);background-size:var(--step) var(--step);background-position:center;border:1px solid var(--line);color:var(--board-ink)}
+.board[data-mode=dark]{--surface:#202c42;--grid:rgba(203,222,247,.12);--board-ink:#d5e6fb;--guide:rgba(117,230,229,.49);border-color:#293e59}
+.board::before,.board::after{content:"";position:absolute;z-index:-1;pointer-events:none}.board::before{inset:0 50%;border-left:1px dashed var(--guide)}.board::after{inset:50% 0;border-top:1px dashed var(--guide)}
+.logo{display:block;width:min(615px,88%);height:auto;object-fit:contain;grid-area:1/1}.board .logo[hidden]{display:none}.board-label,.board-scale{position:absolute;padding:3px 6px;background:var(--surface);font:700 10px/1.2 system-ui;letter-spacing:.12em}.board-label{top:14px;left:14px}.board-scale{bottom:14px;right:14px}
+.actions{margin-top:42px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.switch{display:flex;align-items:center;gap:3px;padding:3px;border:1px solid var(--line);border-radius:8px;background:var(--paper)}.switch button{font-family:inherit;font-size:13px;font-weight:700;min-height:36px;border:0;border-radius:5px;padding:0 12px;background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap}.switch button[aria-pressed=true]{background:white;color:var(--navy);box-shadow:0 1px 3px #132c4625}
+.downloads{display:grid;grid-template-columns:repeat(2,var(--btn-width));gap:11px}.dl{width:100%;height:var(--btn-height);display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 15px;border:1px solid var(--navy);border-radius:6px;text-decoration:none;font:750 14px/1.15 system-ui;color:var(--navy);white-space:nowrap}.dl.primary{background:var(--navy);color:#fff}.dl.primary:hover{background:#193a72}.dl small{font-size:10px;letter-spacing:.01em}.dl[aria-disabled=true]{border-color:#cdd8e6;color:var(--muted);background:#f8fafd}.dl .icon{width:17px;height:17px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.details{margin-top:54px;display:grid;grid-template-columns:minmax(0,571fr) minmax(0,521fr);gap:clamp(32px,7.46vw,88px)}.panel{border-top:1px solid var(--line);padding-top:16px}.panel .kicker{color:#19647b}.panel h2{font-size:23px;letter-spacing:-.055em;margin:6px 0 10px}.panel p{font-size:14px;line-height:28px;color:var(--muted);margin:0}.symbols{list-style:none;margin:13px 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.symbols li{display:flex;align-items:center;gap:7px;min-width:0;font-size:12px;font-weight:750}.symbol{width:28px;height:28px;flex:none;display:grid;place-items:center;border-radius:5px;background:#edf4fa}.symbol svg{width:17px;height:17px}.palette{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:12px 0 0;padding:0;list-style:none}.swatch{height:43px;background:var(--swatch);border:1px solid #0d285c26;border-radius:5px;margin-bottom:6px}.palette strong,.palette code{display:block;font-size:11px;line-height:1.6}.palette code{color:var(--muted)}
+.guide{margin-top:42px;border:1px solid var(--line);border-radius:8px;background:var(--paper)}.guide summary{padding:16px 19px;font-weight:750;font-size:14px;cursor:pointer}.guide-body{padding:0 19px 20px;color:var(--muted);font-size:13px;line-height:1.72}.guide-body p{margin:8px 0}.spec-wrap{overflow:auto}.guide table{border-collapse:collapse;width:100%;min-width:610px}.guide th,.guide td{text-align:left;vertical-align:top;border-bottom:1px solid var(--line);padding:8px}.guide th{color:var(--navy)}.guide code{overflow-wrap:anywhere}.footer{border-top:1px solid var(--line)}.footer-inner{padding-block:22px;color:var(--muted);font-size:11px}
+
+@media(max-width:790px){.ci{padding-block:38px}.ci-title{height:auto;margin-bottom:25px}.actions{margin-top:20px}.downloads{grid-template-columns:repeat(2,minmax(0,1fr));width:min(447px,100%)}.details{margin-top:36px;grid-template-columns:1fr;gap:24px}}
+@media(max-width:590px){.top-inner,.ci,.footer-inner{width:calc(100% - 32px)}.actions{flex-direction:column}.downloads{width:100%;gap:8px}.dl{padding:0 9px;font-size:12px}.dl small{font-size:9px}.dl .icon{width:13px;height:13px}.board{min-height:158px;--step:14px}.board-label{top:8px;left:8px}.board-scale{bottom:8px;right:8px}.palette{gap:5px}.palette code{font-size:10px}.symbols li{font-size:11px}}
+
+@font-face{font-family:PGG;src:url(https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_11-01@1.1/PuradakGentleGothicR.woff2)}
+@font-face{font-family:ONE;src:url(https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/ONE-Mobile-Title.woff)}
+.sec{margin-top:96px;padding-top:28px;border-top:1px solid var(--line)}.sec .kicker{color:#1F97B6;font-size:12px;font-weight:700;letter-spacing:.12em}.sec h2{font-size:clamp(24px,3.4vw,32px);letter-spacing:-.04em;margin:10px 0 14px}.lead{color:var(--muted);line-height:1.8;max-width:760px;font-size:15px}
+.kw{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px}.kw article{border:1px solid var(--line);border-radius:12px;padding:26px}.kw b{font-family:ONE,sans-serif;font-size:30px;letter-spacing:.04em}.kw p{line-height:1.7;color:var(--muted);margin:12px 0 0}.kw strong{color:var(--ink)}
+.sym{display:grid;grid-template-columns:1fr 1.3fr;gap:40px;align-items:center;margin-top:24px}.sym-main{margin:0;background:var(--paper);border-radius:12px;padding:48px;display:grid;place-items:center}.sym-main img{width:70%}.sym-parts{list-style:none;padding:0;margin:0;display:grid;gap:22px}.sym-parts li{display:flex;gap:16px}.sym-parts svg{width:44px;height:44px;flex:none;background:var(--paper);border-radius:10px;padding:8px}.sym-parts b{font-family:ONE,sans-serif;font-size:17px}.sym-parts p{margin:4px 0 0;color:var(--muted);line-height:1.7;font-size:14px}
+.gridfig{position:relative;margin:24px 0 0;padding:30px;border:1px solid var(--line);border-radius:12px;background-color:#f7fafc;background-image:linear-gradient(rgba(28,69,107,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(28,69,107,.1) 1px,transparent 1px);background-size:21px 21px}.gridfig img{width:100%;display:block;outline:1px dashed rgba(22,111,137,.5)}.gridfig span{position:absolute;font:700 11px/1 monospace;color:#1F97B6;background:#fff;padding:2px 5px}.g-h{left:6px;top:50%}.g-w{right:6px;top:50%}
+.type{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}.type div{border:1px solid var(--line);border-radius:12px;padding:20px;display:grid;gap:6px}.type small{color:var(--muted)}.type b{font-size:30px;font-weight:400}.type span{font-size:13px;color:var(--muted)}
+.grad{height:18px;border-radius:9px;margin:20px 0 24px;background:linear-gradient(90deg,#0D285C,#1F97B6 38%,#36BDE0 70%,#38C7AC)}.ctable{display:grid;gap:10px}.crow{display:grid;grid-template-columns:90px 1fr auto;gap:22px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:12px}.crow i{height:70px;border-radius:8px}.crow small{color:var(--muted);font-size:11px;letter-spacing:.1em}.crow b{display:block;font-size:17px}.crow p{margin:2px 0 0;color:var(--muted);font-size:13px}.crow dl{display:grid;grid-template-columns:auto auto;gap:3px 14px;margin:0;font:12px/1.4 monospace}.crow dt{color:var(--muted)}.crow dd{margin:0}.note{font-size:12px;color:var(--muted)}
+.usage,.mis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:22px}.usage figure,.mis figure{margin:0;border:1px solid var(--line);border-radius:12px;padding:28px 18px 14px;display:grid;gap:18px;overflow:hidden}.usage img,.mis img{width:100%}.usage figcaption,.mis figcaption{font-size:12px;color:var(--muted)}.usage figure[style*="#0D285C"] figcaption,.usage figure[style*="#1F97B6"] figcaption{color:#fff}.mis figure{position:relative}.mis figure::after{content:"×";position:absolute;right:10px;top:4px;color:#e0484f;font-size:22px;font-weight:700}
+.sig{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}.sig figure{margin:0}.clear{border:1px solid var(--line);border-radius:12px;min-height:220px;display:grid;place-items:center;padding:30px;background:repeating-linear-gradient(45deg,#fff 0 8px,#f2f7fb 8px 16px)}.clear img{width:100%;outline:16px solid rgba(31,151,182,.14);background:#fff}.sig figcaption{font-size:13px;margin-top:8px;color:var(--muted)}
+.emb{display:flex;gap:30px;margin-top:22px;flex-wrap:wrap}.emb svg{width:220px}
+.mock{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}.mock figure{margin:0}.mock figcaption{font-size:13px;color:var(--muted);margin-top:8px}.card,.apron,.sign{border-radius:12px;height:220px;display:grid;place-items:center;overflow:hidden}.card{background:#f4f8fc;padding:30px}.card img{width:80%}.card p{font-size:12px;color:var(--muted);text-align:center;margin:0}.apron{background:radial-gradient(circle at 50% 0,#2a4f8f,#0D285C 70%)}.apron img{width:55%}.sign{background:#EAF6FB;gap:8px;align-content:center}.sign img{width:70%}.sign span{color:#0D285C;font-size:13px}
+@media(max-width:790px){.kw,.sig,.mock,.type,.sym{grid-template-columns:1fr}.usage,.mis{grid-template-columns:1fr 1fr}.crow{grid-template-columns:60px 1fr}.crow dl{grid-column:1/-1}}
+.lead,.kw p,.sym-parts p,h2,.crow p{text-wrap:balance}.mock img{width:100%;aspect-ratio:3/2;object-fit:cover;border-radius:12px;display:block}.sym-parts b small{font-size:13px;color:var(--muted);margin-left:6px;font-family:inherit;letter-spacing:.04em}.sig{grid-template-columns:repeat(2,1fr)!important}.word span{font-size:17px}.top .meta{text-transform:none}</style>
+</head>
+<body>
+<header class="top"><div class="top-inner"><span class="word"><i aria-hidden="true"></i><span style="font-family:PGG;color:#1F97B6">클린</span><span style="font-family:ONE;color:#0D285C">베테랑</span></span><span class="meta">CLEANVETERAN CI 2027 Renewal</span></div></header>
+<main class="ci" aria-labelledby="ci-title">
+  <header class="ci-title"><div class="kicker">Corporate Identity</div><h1 id="ci-title">CI 소개</h1></header>
+  <figure class="board" id="ci-board" data-mode="light" aria-label="클린베테랑 로고 좌표판" data-layer="좌표판" data-spec="1177 × 274">
+    <span class="board-label" aria-hidden="true">CI 01 / SIGNATURE</span>
+    <img class="logo" id="logo-light" src="assets/cleanveteran-ci-basic.svg" width="2048" height="512" alt="밝은 배경용 클린베테랑 로고" data-layer="밝은 배경용 로고">
+    <img class="logo" id="logo-dark" src="assets/cleanveteran-ci-white.svg" width="2048" height="512" alt="어두운 배경용 클린베테랑 로고" data-layer="어두운 배경용 로고" hidden>
+    <span class="board-scale" aria-hidden="true">CLEANVETERAN / GRID</span>
+  </figure>
+  <div class="actions" data-layer="로고 유형 및 다운로드">
+    <div class="switch" role="group" aria-label="로고 배경 미리보기">
+      <button type="button" aria-pressed="true" aria-controls="ci-board" data-mode="light">밝은 배경</button>
+      <button type="button" aria-pressed="false" aria-controls="ci-board" data-mode="dark">어두운 배경</button>
+    </div>
+    <div class="downloads" aria-label="CI 파일 다운로드">
+      
+      <a class="dl" id="ai-download" href="assets/cleanveteran-ci.ai" download><span>AI Download</span><small>기본형·흰색형 · 레이어</small></a>
+      <a class="dl primary" id="jpg-download" href="assets/cleanveteran-ci-jpg.zip" download><span>JPG Download</span><small>2종 · ZIP</small><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5v10m-4-4 4 4 4-4M3.5 13v3.5h13V13"/></svg></a>
+    </div>
+  </div>
+  <section class="sec" id="keywords"><div class="kicker">00 / Brand Keywords</div><h2>병원의 하루를 깨끗하게 여는 사람들</h2>
+<p class="lead">클린베테랑은 병의원 전문 청소·소독 매칭 브랜드입니다. 로고에 담은 세 가지 약속을 영어 키워드로 정리했습니다.</p>
+<div class="kw">
+<article><b style="color:var(--teal)">CLEAN</b><p>클린베테랑은 진료 공간의 기준에 맞춰 <strong>깨끗함을 끝까지 확인합니다.</strong></p></article>
+<article><b style="color:var(--mint)">CARE</b><p>클린베테랑은 매일 같은 고정 매니저가 <strong>공간을 세심하게 돌봅니다.</strong></p></article>
+<article><b style="color:var(--navy)">TRUST</b><p>클린베테랑은 매칭부터 사후 관리까지 <strong>직접 책임지고 관리합니다.</strong></p></article>
+</div></section>
+
+<section class="sec" id="symbol"><div class="kicker">01 / Symbol</div><h2>심볼의 의미</h2>
+<p class="lead">세 개의 형태가 모여 하나의 C를 이룹니다. 감싸는 곡선, 마무리의 반짝임, 닦아내는 물결이 청소의 처음과 끝을 보여 줍니다.</p>
+<div class="sym">
+<figure class="sym-main"><img src="assets/cleanveteran-symbol.svg" alt="클린베테랑 심볼"></figure>
+<ol class="sym-parts">
+<li><svg viewBox="0 0 24 24"><path fill="#0D285C" d="M5 20C0 13 3 5 10 2c4-2 8-1 12 2l-4 4c-3-3-7-3-10 0-2 2-2 5-1 7z"/></svg><div><b>C 곡선 <small>Cover</small></b><p>Clean의 첫 글자. 병원 공간 전체를 빈틈없이 감싸 관리한다는 뜻입니다.</p></div></li>
+<li><svg viewBox="0 0 24 24"><path fill="#38C7AC" d="M12 1c2 7 4 9 11 11-7 2-9 4-11 11-2-7-4-9-11-11 7-2 9-4 11-11Z"/></svg><div><b>반짝임 <small>Finish</small></b><p>청소를 마친 순간의 반짝임. 눈으로 확인할 수 있는 결과를 나타냅니다.</p></div></li>
+<li><svg viewBox="0 0 24 24"><path fill="#36BDE0" d="M1 18c7 0 9-4 13-8 4-4 8-3 9 0-4-1-5 4-9 7-4 4-8 4-13 1Z"/></svg><div><b>물결 <small>Flow</small></b><p>닦아내는 손길을 담았습니다. 끝이 위로 올라가는 모양은 내일도 이어지는 관리를 뜻합니다.</p></div></li>
+</ol></div></section>
+
+<section class="sec" id="grid"><div class="kicker">02 / Logo Grid</div><h2>격자와 비율</h2>
+
+<figure class="gridfig"><img src="assets/cleanveteran-ci-basic.svg" alt="격자 위 클린베테랑 로고">
+<span class="g-h">H</span><span class="g-w">0.54H</span></figure>
+</section>
+
+<section class="sec" id="color"><div class="kicker">03 / Color System</div><h2>컬러 시스템</h2>
+<p class="lead">네이비와 틸이 신뢰를, 시안과 민트가 깨끗함을 맡습니다. 짙은 네이비에서 맑은 민트로 갈수록 밝아지도록 순서를 정했습니다.</p>
+<div class="grad"></div>
+<div class="ctable">
+<div class="crow"><i style="background:#0D285C"></i><div><small>Primary</small><b>Veteran Navy</b><p>전문성·책임. 워드마크 「베테랑」과 C 곡선.</p></div><dl><dt>HEX</dt><dd>#0D285C</dd><dt>RGB</dt><dd>13 40 92</dd><dt>CMYK</dt><dd>86 57 0 64</dd></dl></div>
+<div class="crow"><i style="background:#1F97B6"></i><div><small>Primary</small><b>Clean Teal</b><p>위생·청결. 워드마크 「클린」.</p></div><dl><dt>HEX</dt><dd>#1F97B6</dd><dt>RGB</dt><dd>31 151 182</dd><dt>CMYK</dt><dd>83 17 0 29</dd></dl></div>
+<div class="crow"><i style="background:#36BDE0"></i><div><small>Secondary</small><b>Wave Cyan</b><p>흐름·지속. 물결 심볼.</p></div><dl><dt>HEX</dt><dd>#36BDE0</dd><dt>RGB</dt><dd>54 189 224</dd><dt>CMYK</dt><dd>76 16 0 12</dd></dl></div>
+<div class="crow"><i style="background:#38C7AC"></i><div><small>Secondary</small><b>Sparkle Mint</b><p>마무리·결과. 반짝임 심볼, 강조 포인트.</p></div><dl><dt>HEX</dt><dd>#38C7AC</dd><dt>RGB</dt><dd>56 199 172</dd><dt>CMYK</dt><dd>72 0 14 22</dd></dl></div>
+</div></section>
+
+<section class="sec" id="usage"><div class="kicker">04 / Color Usage</div><h2>배경별 색상 활용</h2>
+<div class="usage">
+<figure style="background:#fff"><img src="assets/cleanveteran-ci-basic.svg" alt=""><figcaption><b>기본형</b> 흰색·밝은 배경</figcaption></figure>
+<figure style="background:#EAF6FB"><img src="assets/cleanveteran-ci-basic.svg" alt=""><figcaption><b>기본형</b> 연한 하늘색 배경</figcaption></figure>
+<figure style="background:#0D285C"><img src="assets/cleanveteran-ci-white.svg" alt=""><figcaption><b>변형</b> 네이비·어두운 배경, C 곡선 연한 네이비(#8FA8D0)·베테랑 흰색</figcaption></figure>
+<figure style="background:#F2F4F7"><img src="assets/cleanveteran-ci-basic.svg" alt=""><figcaption><b>기본형</b> 연회색 배경</figcaption></figure>
+</div></section>
+
+<section class="sec" id="signature"><div class="kicker">05 / Signature</div><h2>시그니처 조합과 공간 규정</h2>
+<p class="lead">공간에 맞게 좌우조합과 상하조합 중 하나를 고릅니다. 로고 둘레에는 심볼 높이의 1/4(0.25H) 이상을 비워 다른 요소가 침범하지 않게 합니다.</p>
+<div class="sig">
+<figure><div class="clear"><img src="assets/cleanveteran-ci-basic.svg" alt="국문 좌우조합"></div><figcaption>국문 좌우조합 (기본)</figcaption></figure>
+<figure><div class="clear"><img src="assets/cleanveteran-ci-stack.svg" alt="국문 상하조합" style="max-height:200px;width:auto"></div><figcaption>국문 상하조합</figcaption></figure>
+<figure><div class="clear"><img src="assets/cleanveteran-ci-en.svg" alt="영문 좌우조합"></div><figcaption>영문 좌우조합</figcaption></figure>
+<figure><div class="clear"><img src="assets/cleanveteran-ci-koen.svg" alt="국영문 혼합"></div><figcaption>국영문 혼합 좌우조합</figcaption></figure>
+<figure><div class="clear"><img src="assets/cleanveteran-ci-koen-stack.svg" alt="국영문 상하조합" style="max-height:150px;width:auto"></div><figcaption>국영문 상하조합 (워드마크)</figcaption></figure>
+</div></section>
+
+<section class="sec" id="emblem"><div class="kicker">06 / Emblem</div><h2>원형 엠블럼</h2>
+<p class="lead">유니폼 패치, 인증 스티커, 프로필 이미지처럼 정사각형 공간에는 원형 엠블럼을 씁니다.</p>
+<div class="emb">
+<svg viewBox="0 0 300 300"><defs><path id="arc" d="M58 150a92 92 0 1 1 184 0"/></defs><circle cx="150" cy="150" r="146" fill="#0D285C"/><circle cx="150" cy="150" r="124" fill="none" stroke="#36BDE0" stroke-width="2"/><text font-family="ONE" font-size="18" fill="#fff" letter-spacing="5"><textPath href="#arc" startOffset="50%" text-anchor="middle">CLEAN VETERAN</textPath></text><image href="assets/cleanveteran-symbol-white.svg" x="110" y="110" width="80" height="80"/><text x="150" y="232" font-family="ONE" font-size="11" fill="#38C7AC" text-anchor="middle" letter-spacing="3">HOSPITAL CARE</text></svg>
+<svg viewBox="0 0 300 300"><circle cx="150" cy="150" r="146" fill="#fff" stroke="#dce5ef" stroke-width="4"/><circle cx="150" cy="150" r="124" fill="none" stroke="#1F97B6" stroke-width="2"/><text font-family="ONE" font-size="18" fill="#0D285C" letter-spacing="5"><textPath href="#arc" startOffset="50%" text-anchor="middle">CLEAN VETERAN</textPath></text><image href="assets/cleanveteran-symbol.svg" x="110" y="110" width="80" height="80"/><text x="150" y="232" font-family="ONE" font-size="11" fill="#1F97B6" text-anchor="middle" letter-spacing="3">HOSPITAL CARE</text></svg>
+</div></section>
+
+<section class="sec" id="mockup"><div class="kicker">07 / Application</div><h2>활용 예시</h2>
+<div class="mock">
+<figure><img src="assets/mock-card.jpg" alt="클린베테랑 명함 목업"><figcaption>명함</figcaption></figure>
+<figure><img src="assets/mock-apron.jpg" alt="클린베테랑 유니폼 앞치마 목업"><figcaption>유니폼 앞치마</figcaption></figure>
+<figure><img src="assets/mock-cap.jpg" alt="클린베테랑 심볼 볼캡 목업"><figcaption>볼캡</figcaption></figure>
+</div></section>
+
+<section class="sec" id="misuse"><div class="kicker">08 / Misuse</div><h2>잘못된 사용</h2>
+<div class="mis">
+<figure><img src="assets/cleanveteran-ci-basic.svg" style="transform:scaleX(1.4)" alt=""><figcaption>비율 변형</figcaption></figure>
+<figure><img src="assets/cleanveteran-ci-basic.svg" style="filter:hue-rotate(120deg)" alt=""><figcaption>지정 외 색상</figcaption></figure>
+<figure><img src="assets/cleanveteran-ci-basic.svg" style="transform:rotate(-12deg)" alt=""><figcaption>회전</figcaption></figure>
+<figure style="background:#0D285C"><img src="assets/cleanveteran-ci-basic.svg" alt=""><figcaption style="color:#fff">어두운 배경에 기본형 사용</figcaption></figure>
+</div></section>
+
+  
+
+</main>
+<footer class="footer"><div class="footer-inner">20261126 Ver.</div></footer>
+<script>
+const ciBoard = document.getElementById('ci-board');
+const ciToggle = document.querySelectorAll('.switch button[data-mode]');
+for (const button of ciToggle) button.addEventListener('click', () => {
+  const mode = button.dataset.mode;
+  ciBoard.dataset.mode = mode;
+  document.getElementById('logo-light').hidden = mode !== 'light';
+  document.getElementById('logo-dark').hidden = mode !== 'dark';
+  for (const item of ciToggle) item.setAttribute('aria-pressed', String(item === button));
+});
+</script>
+</body>
+</html>
